@@ -1,0 +1,16 @@
+meta {
+  name: Hello World
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8002/
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body: eq Hello World!
+}
