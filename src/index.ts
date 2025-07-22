@@ -1,12 +1,15 @@
-import express from 'express';
+import express from "express";
+import { configDotenv } from "dotenv";
 
+configDotenv();
 const app = express();
-const PORT = 8002;
+const port: number = Number(process.env.PORT) || 8001;
+const apiVersion: number = Number(process.env.API_VERSION) || 1;
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+app.get(`/api/v${apiVersion}/user/`, (req, res) => {
+  res.json({"Hello": "World"});
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
 });
