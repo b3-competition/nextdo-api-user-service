@@ -1,0 +1,66 @@
+name: Bruno API Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      # If your API needs a database or other services, add them here
+      # postgres:
+      #   image: postgres:13
+      #   env:
+      #     POSTGRES_PASSWORD: postgres
+      #   options: >-
+      #     --health-cmd pg_isready
+      #     --health-interval 10s
+      #     --health-timeout 5s
+      #     --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'pnpm'
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 10.12.1
+
+    - name: Install dependencies
+      run: pnpm install
+
+    - name: Build application
+      run: pnpm run build
+
+    - name: Start application in background
+      run: |
+        pnpm run start &
+        echo $! > app.pid
+      env:
+        NODE_ENV: test
+        PORT: 8001
+
+    - name: Wait for application to start
+      run: |
+        timeout 30s bash -c 'until curl -f http://localhost:8001/api/v1/user/; do sleep 1; done'
+
+    - name: Run Bruno tests
+      run: pnpm run test
+
+    - name: Stop application
+      if: always()
+      run: |
+        if [ -f app.pid ]; then
+          kill $(cat app.pid) || true
+        fi
