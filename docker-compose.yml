@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  nextdo-api-user-service:
+    build: .
+    ports:
+      - "8001:8001"
+    environment:
+      - NODE_ENV=production
+      - PORT=8001
+      - API_VERSION=1
+    restart: unless-stopped
