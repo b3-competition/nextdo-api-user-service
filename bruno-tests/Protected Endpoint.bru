@@ -1,0 +1,35 @@
+meta {
+  name: Protected Endpoint
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/v1/protected
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+vars:pre-request {
+  baseUrl: http://localhost:8001
+}
+
+assert {
+  res.status: eq 200
+  res.body.success: eq true
+  res.body.message: eq "This is a protected endpoint"
+  res.body.user: isDefined
+}
+
+tests {
+  test("Should access protected endpoint with valid token", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().success).to.be.true;
+    expect(res.getBody().message).to.equal("This is a protected endpoint");
+    expect(res.getBody().user).to.be.an('object');
+  });
+}

@@ -1,0 +1,36 @@
+meta {
+  name: Auth Confirm Signup
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/auth/confirm-signup
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "test@example.com",
+    "confirmationCode": "123456"
+  }
+}
+
+vars:pre-request {
+  baseUrl: http://localhost:8001
+}
+
+assert {
+  res.status: eq 200
+  res.body.success: eq true
+  res.body.message: contains "Email confirmed successfully"
+}
+
+tests {
+  test("Should confirm user signup", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().success).to.be.true;
+    expect(res.getBody().message).to.contain("Email confirmed successfully");
+  });
+}
