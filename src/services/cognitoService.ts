@@ -46,19 +46,33 @@ export interface ConfirmForgotPasswordRequest {
 export class CognitoService {
   private client: CognitoIdentityProviderClient;
   private config: CognitoConfig;
-  private jwtVerifier: any;
+  private jwtVerifier: ReturnType<typeof CognitoJwtVerifier.create>;
 
   constructor(config: CognitoConfig) {
     this.config = config;
     this.client = new CognitoIdentityProviderClient({ region: config.region });
-    this.jwtVerifier = CognitoJwtVerifier.create({
-      userPoolId: config.userPoolId,
-      tokenUse: "access",
-      clientId: config.clientId,
-    });
+    
+    if (!config.userPoolId || !config.clientId) {
+      console.warn('⚠️  AWS Cognito configuration is incomplete. Authentication endpoints will not work properly.');
+      this.jwtVerifier = null as any;
+    } else {
+      this.jwtVerifier = CognitoJwtVerifier.create({
+        userPoolId: config.userPoolId,
+        tokenUse: "access",
+        clientId: config.clientId,
+      });
+    }
   }
 
   async signUp(request: SignUpRequest) {
+    if (!this.config.userPoolId || !this.config.clientId) {
+      return {
+        success: false,
+        error: 'ConfigurationError',
+        message: 'AWS Cognito configuration is incomplete. Please set COGNITO_USER_POOL_ID and COGNITO_CLIENT_ID environment variables.',
+      };
+    }
+    
     try {
       const command = new SignUpCommand({
         ClientId: this.config.clientId,
@@ -77,16 +91,24 @@ export class CognitoService {
         userSub: response.UserSub,
         message: "User registered successfully. Please check your email for confirmation code.",
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        error: error.name,
-        message: error.message,
+        error: error instanceof Error ? error.name : 'UnknownError',
+        message: error instanceof Error ? error.message : 'An unknown error occurred',
       };
     }
   }
 
   async confirmSignUp(request: ConfirmSignUpRequest) {
+    if (!this.config.userPoolId || !this.config.clientId) {
+      return {
+        success: false,
+        error: 'ConfigurationError',
+        message: 'AWS Cognito configuration is incomplete. Please set COGNITO_USER_POOL_ID and COGNITO_CLIENT_ID environment variables.',
+      };
+    }
+    
     try {
       const command = new ConfirmSignUpCommand({
         ClientId: this.config.clientId,
@@ -99,16 +121,24 @@ export class CognitoService {
         success: true,
         message: "Email confirmed successfully. You can now log in.",
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        error: error.name,
-        message: error.message,
+        error: error instanceof Error ? error.name : 'UnknownError',
+        message: error instanceof Error ? error.message : 'An unknown error occurred',
       };
     }
   }
 
   async login(request: LoginRequest) {
+    if (!this.config.userPoolId || !this.config.clientId) {
+      return {
+        success: false,
+        error: 'ConfigurationError',
+        message: 'AWS Cognito configuration is incomplete. Please set COGNITO_USER_POOL_ID and COGNITO_CLIENT_ID environment variables.',
+      };
+    }
+    
     try {
       const command = new InitiateAuthCommand({
         ClientId: this.config.clientId,
@@ -137,11 +167,11 @@ export class CognitoService {
           message: "Authentication failed",
         };
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        error: error.name,
-        message: error.message,
+        error: error instanceof Error ? error.name : 'UnknownError',
+        message: error instanceof Error ? error.message : 'An unknown error occurred',
       };
     }
   }
@@ -158,11 +188,11 @@ export class CognitoService {
         success: true,
         message: "Password reset code sent to your email.",
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        error: error.name,
-        message: error.message,
+        error: error instanceof Error ? error.name : 'UnknownError',
+        message: error instanceof Error ? error.message : 'An unknown error occurred',
       };
     }
   }
@@ -181,11 +211,11 @@ export class CognitoService {
         success: true,
         message: "Password reset successfully. You can now log in with your new password.",
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        error: error.name,
-        message: error.message,
+        error: error instanceof Error ? error.name : 'UnknownError',
+        message: error instanceof Error ? error.message : 'An unknown error occurred',
       };
     }
   }
@@ -202,16 +232,24 @@ export class CognitoService {
         success: true,
         message: "Confirmation code resent to your email.",
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        error: error.name,
-        message: error.message,
+        error: error instanceof Error ? error.name : 'UnknownError',
+        message: error instanceof Error ? error.message : 'An unknown error occurred',
       };
     }
   }
 
   async verifyToken(token: string) {
+    if (!this.jwtVerifier) {
+      return {
+        success: false,
+        error: 'ConfigurationError',
+        message: 'AWS Cognito configuration is incomplete',
+      };
+    }
+    
     try {
       const payload = await this.jwtVerifier.verify(token);
       return {
@@ -219,10 +257,10 @@ export class CognitoService {
         payload,
         message: "Token is valid",
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        error: error.name,
+        error: error instanceof Error ? error.name : 'TokenVerificationError',
         message: "Invalid or expired token",
       };
     }

@@ -44,7 +44,7 @@ app.post(`/api/v${apiVersion}/auth/signup`, async (req, res) => {
     } else {
       res.status(400).json(result);
     }
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -73,7 +73,7 @@ app.post(`/api/v${apiVersion}/auth/confirm-signup`, async (req, res) => {
     } else {
       res.status(400).json(result);
     }
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -102,7 +102,7 @@ app.post(`/api/v${apiVersion}/auth/login`, async (req, res) => {
     } else {
       res.status(401).json(result);
     }
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -128,7 +128,7 @@ app.post(`/api/v${apiVersion}/auth/forgot-password`, async (req, res) => {
     } else {
       res.status(400).json(result);
     }
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -158,7 +158,7 @@ app.post(`/api/v${apiVersion}/auth/confirm-forgot-password`, async (req, res) =>
     } else {
       res.status(400).json(result);
     }
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -184,7 +184,7 @@ app.post(`/api/v${apiVersion}/auth/resend-confirmation`, async (req, res) => {
     } else {
       res.status(400).json(result);
     }
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -210,7 +210,7 @@ app.get(`/api/v${apiVersion}/auth/verify-token`, async (req, res) => {
     } else {
       res.status(401).json(result);
     }
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -243,7 +243,7 @@ app.get(`/api/v${apiVersion}/protected`, async (req, res) => {
         message: "Invalid or expired token"
       });
     }
-  } catch (error) {
+  } catch {
     res.status(500).json({
       success: false,
       message: "Internal server error"
