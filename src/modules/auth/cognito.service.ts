@@ -9,8 +9,8 @@ import {
   AuthFlowType,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
-import { CognitoConfig } from "./config";
 import {
+  CognitoConfig,
   SignUpRequest,
   LoginRequest,
   ConfirmSignUpRequest,

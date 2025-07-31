@@ -1,5 +1,5 @@
-export { CognitoConfig } from "./config";
 export {
+  CognitoConfig,
   SignUpRequest,
   LoginRequest,
   ConfirmSignUpRequest,

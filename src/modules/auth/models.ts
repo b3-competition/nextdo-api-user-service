@@ -1,3 +1,9 @@
+export interface CognitoConfig {
+  region: string;
+  userPoolId: string;
+  clientId: string;
+}
+
 export interface SignUpRequest {
   email: string;
   password: string;
