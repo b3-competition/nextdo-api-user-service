@@ -2,7 +2,6 @@ name: Bruno API Tests
 
 on:
   push:
-
     branches: [ main ]
   pull_request:
     branches: [ main ]

@@ -5,12 +5,12 @@ meta {
 }
 
 get {
-  url: http://localhost:8002/
+  url: http://localhost:8001/api/v1/user/
   body: none
   auth: none
 }
 
 assert {
   res.status: eq 200
-  res.body: eq Hello World!
+  res.body.Hello: eq World
 }
