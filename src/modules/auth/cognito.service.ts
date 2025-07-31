@@ -19,15 +19,18 @@ import {
   AuthResponse,
 } from "./models";
 import { ConfigurationError } from "./errors";
+import { PasswordService } from "./password.service";
 
 export class CognitoService {
   private client: CognitoIdentityProviderClient;
   private config: CognitoConfig;
   private jwtVerifier: ReturnType<typeof CognitoJwtVerifier.create>;
+  private passwordService: PasswordService;
 
   constructor(config: CognitoConfig) {
     this.config = config;
     this.client = new CognitoIdentityProviderClient({ region: config.region });
+    this.passwordService = new PasswordService();
     
     if (!config.userPoolId || !config.clientId) {
       console.warn('⚠️  AWS Cognito configuration is incomplete. Authentication endpoints will not work properly.');
@@ -51,10 +54,12 @@ export class CognitoService {
     }
     
     try {
+      const hashedPassword = await this.passwordService.hashPassword(request.password);
+      
       const command = new SignUpCommand({
         ClientId: this.config.clientId,
         Username: request.email,
-        Password: request.password,
+        Password: hashedPassword,
         UserAttributes: [
           { Name: "email", Value: request.email },
           ...(request.firstName ? [{ Name: "given_name", Value: request.firstName }] : []),
@@ -117,12 +122,14 @@ export class CognitoService {
     }
     
     try {
+      const hashedPassword = await this.passwordService.hashPassword(request.password);
+      
       const command = new InitiateAuthCommand({
         ClientId: this.config.clientId,
         AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
         AuthParameters: {
           USERNAME: request.email,
-          PASSWORD: request.password,
+          PASSWORD: hashedPassword,
         },
       });
 
@@ -176,11 +183,13 @@ export class CognitoService {
 
   async confirmForgotPassword(request: ConfirmForgotPasswordRequest): Promise<AuthResponse> {
     try {
+      const hashedNewPassword = await this.passwordService.hashPassword(request.newPassword);
+      
       const command = new ConfirmForgotPasswordCommand({
         ClientId: this.config.clientId,
         Username: request.email,
         ConfirmationCode: request.confirmationCode,
-        Password: request.newPassword,
+        Password: hashedNewPassword,
       });
 
       await this.client.send(command);

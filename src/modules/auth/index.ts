@@ -14,3 +14,4 @@ export {
   AuthenticationError,
 } from "./errors";
 export { CognitoService } from "./cognito.service";
+export { PasswordService } from "./password.service";
