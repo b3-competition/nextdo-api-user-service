@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+
+# Package manager files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Bruno tests
+bruno-tests/
