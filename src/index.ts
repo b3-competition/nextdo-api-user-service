@@ -1,6 +1,6 @@
 import express from "express";
 import { configDotenv } from "dotenv";
-import { CognitoService, CognitoConfig } from "./services/cognitoService";
+import { CognitoService, CognitoConfig } from "./modules/auth";
 
 configDotenv();
 const app = express();
