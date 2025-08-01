@@ -20,6 +20,7 @@ import {
 } from "./models";
 import { ConfigurationError } from "./errors";
 import { PasswordService } from "./password.service";
+import { CognitoClientFactory } from "./config";
 
 export class CognitoService {
   private client: CognitoIdentityProviderClient;
@@ -29,19 +30,9 @@ export class CognitoService {
 
   constructor(config: CognitoConfig) {
     this.config = config;
-    this.client = new CognitoIdentityProviderClient({ region: config.region });
+    this.client = CognitoClientFactory.createClient(config);
     this.passwordService = new PasswordService();
-    
-    if (!config.userPoolId || !config.clientId) {
-      console.warn('⚠️  AWS Cognito configuration is incomplete. Authentication endpoints will not work properly.');
-      this.jwtVerifier = null as any;
-    } else {
-      this.jwtVerifier = CognitoJwtVerifier.create({
-        userPoolId: config.userPoolId,
-        tokenUse: "access",
-        clientId: config.clientId,
-      });
-    }
+    this.jwtVerifier = CognitoClientFactory.createJwtVerifier(config) as any;
   }
 
   async signUp(request: SignUpRequest): Promise<AuthResponse> {
