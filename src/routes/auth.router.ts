@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { CognitoService, cognitoConfig } from "../modules/auth";
 
-const router = Router();
+const router: Router = Router();
 const cognitoService = new CognitoService(cognitoConfig);
 
-router.post("/signup", async (req, res) => {
+router.post("/signup", async (req, res, next) => {
   try {
     const { email, password, fullName, age, educationLevel, currentRole, portfolio } = req.body;
     
@@ -30,15 +30,12 @@ router.post("/signup", async (req, res) => {
     } else {
       res.status(400).json(result);
     }
-  } catch {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error"
-    });
+  } catch (error) {
+    next(error);
   }
 });
 
-router.post("/confirm-signup", async (req, res) => {
+router.post("/confirm-signup", async (req, res, next) => {
   try {
     const { email, confirmationCode } = req.body;
     
@@ -59,15 +56,12 @@ router.post("/confirm-signup", async (req, res) => {
     } else {
       res.status(400).json(result);
     }
-  } catch {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error"
-    });
+  } catch (error) {
+    next(error);
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
     
@@ -88,15 +82,12 @@ router.post("/login", async (req, res) => {
     } else {
       res.status(401).json(result);
     }
-  } catch {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error"
-    });
+  } catch (error) {
+    next(error);
   }
 });
 
-router.post("/forgot-password", async (req, res) => {
+router.post("/forgot-password", async (req, res, next) => {
   try {
     const { email } = req.body;
     
@@ -114,15 +105,12 @@ router.post("/forgot-password", async (req, res) => {
     } else {
       res.status(400).json(result);
     }
-  } catch {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error"
-    });
+  } catch (error) {
+    next(error);
   }
 });
 
-router.post("/confirm-forgot-password", async (req, res) => {
+router.post("/confirm-forgot-password", async (req, res, next) => {
   try {
     const { email, confirmationCode, newPassword } = req.body;
     
@@ -144,15 +132,12 @@ router.post("/confirm-forgot-password", async (req, res) => {
     } else {
       res.status(400).json(result);
     }
-  } catch {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error"
-    });
+  } catch (error) {
+    next(error);
   }
 });
 
-router.post("/resend-confirmation", async (req, res) => {
+router.post("/resend-confirmation", async (req, res, next) => {
   try {
     const { email } = req.body;
     
@@ -170,15 +155,12 @@ router.post("/resend-confirmation", async (req, res) => {
     } else {
       res.status(400).json(result);
     }
-  } catch {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error"
-    });
+  } catch (error) {
+    next(error);
   }
 });
 
-router.get("/verify-token", async (req, res) => {
+router.get("/verify-token", async (req, res, next) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
     
@@ -196,11 +178,8 @@ router.get("/verify-token", async (req, res) => {
     } else {
       res.status(401).json(result);
     }
-  } catch {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error"
-    });
+  } catch (error) {
+    next(error);
   }
 });
 

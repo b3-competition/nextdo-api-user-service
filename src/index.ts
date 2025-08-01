@@ -2,6 +2,7 @@ import express from "express";
 import { configDotenv } from "dotenv";
 import { CognitoService, cognitoConfig } from "./modules/auth";
 import authRouter from "./routes/auth.router";
+import { errorHandler } from "./middleware/errorHandler";
 
 configDotenv();
 const app = express();
@@ -18,7 +19,7 @@ app.get(`/api/v${apiVersion}/user/`, (_req, res) => {
   res.json({"Hello": "World"});
 });
 
-app.get(`/api/v${apiVersion}/protected`, async (req, res) => {
+app.get(`/api/v${apiVersion}/protected`, async (req, res, next) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
     
@@ -43,13 +44,12 @@ app.get(`/api/v${apiVersion}/protected`, async (req, res) => {
         message: "Invalid or expired token"
       });
     }
-  } catch {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error"
-    });
+  } catch (error) {
+    next(error);
   }
 });
+
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

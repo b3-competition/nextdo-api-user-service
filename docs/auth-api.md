@@ -7,6 +7,17 @@ This document provides the API endpoints for user authentication using AWS Cogni
 http://localhost:8001/api/v1/auth
 ```
 
+## ⚠️ Important Security Requirements
+
+**HTTPS Required**: This API must be accessed over HTTPS in production. All sensitive data including passwords are transmitted as plaintext in the request body and rely on TLS encryption for transport security.
+
+### Security Considerations
+
+- **Production**: Always use HTTPS to encrypt data in transit
+- **Development**: HTTP is acceptable for local development only
+- **Password Storage**: Passwords are hashed by AWS Cognito after transmission
+- **Token Security**: Store access tokens securely (httpOnly cookies recommended)
+
 ## Authentication Endpoints
 
 ### 1. User Signup
@@ -288,9 +299,11 @@ When signing up, the following user profile information is stored:
 
 ## Notes for Frontend Developers
 
+- **CRITICAL**: Always use HTTPS in production to protect sensitive data
 - Always include `Content-Type: application/json` in request headers
 - Store `accessToken` securely (consider using httpOnly cookies)
 - Implement token refresh logic using `refreshToken`
 - Handle authentication errors gracefully
 - The `expiresIn` field indicates token lifetime in seconds
 - Use the `/verify-token` endpoint to check token validity before making requests
+- Passwords are sent as plaintext (protected by HTTPS/TLS)
