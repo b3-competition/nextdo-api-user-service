@@ -32,18 +32,10 @@ export class CognitoService {
     this.config = config;
     this.client = CognitoClientFactory.createClient(config);
     this.passwordService = new PasswordService();
-    this.jwtVerifier = CognitoClientFactory.createJwtVerifier(config) as any;
+    this.jwtVerifier = CognitoClientFactory.createJwtVerifier(config);
   }
 
   async signUp(request: SignUpRequest): Promise<AuthResponse> {
-    if (!this.config.userPoolId || !this.config.clientId) {
-      return {
-        success: false,
-        error: 'ConfigurationError',
-        message: 'AWS Cognito configuration is incomplete. Please set COGNITO_USER_POOL_ID and COGNITO_CLIENT_ID environment variables.',
-      };
-    }
-    
     try {
       const hashedPassword = await this.passwordService.hashPassword(request.password);
       
@@ -53,6 +45,11 @@ export class CognitoService {
         Password: hashedPassword,
         UserAttributes: [
           { Name: "email", Value: request.email },
+          { Name: "name", Value: request.fullName },
+          { Name: "custom:age", Value: request.age.toString() },
+          { Name: "custom:education_level", Value: request.educationLevel },
+          { Name: "custom:current_role", Value: request.currentRole },
+          ...(request.portfolio ? [{ Name: "custom:portfolio", Value: request.portfolio }] : []),
           ...(request.firstName ? [{ Name: "given_name", Value: request.firstName }] : []),
           ...(request.lastName ? [{ Name: "family_name", Value: request.lastName }] : []),
         ],
@@ -74,14 +71,6 @@ export class CognitoService {
   }
 
   async confirmSignUp(request: ConfirmSignUpRequest): Promise<AuthResponse> {
-    if (!this.config.userPoolId || !this.config.clientId) {
-      return {
-        success: false,
-        error: 'ConfigurationError',
-        message: 'AWS Cognito configuration is incomplete. Please set COGNITO_USER_POOL_ID and COGNITO_CLIENT_ID environment variables.',
-      };
-    }
-    
     try {
       const command = new ConfirmSignUpCommand({
         ClientId: this.config.clientId,
@@ -104,14 +93,6 @@ export class CognitoService {
   }
 
   async login(request: LoginRequest): Promise<AuthResponse> {
-    if (!this.config.userPoolId || !this.config.clientId) {
-      return {
-        success: false,
-        error: 'ConfigurationError',
-        message: 'AWS Cognito configuration is incomplete. Please set COGNITO_USER_POOL_ID and COGNITO_CLIENT_ID environment variables.',
-      };
-    }
-    
     try {
       const hashedPassword = await this.passwordService.hashPassword(request.password);
       
@@ -219,14 +200,6 @@ export class CognitoService {
   }
 
   async verifyToken(token: string): Promise<AuthResponse> {
-    if (!this.jwtVerifier) {
-      return {
-        success: false,
-        error: 'ConfigurationError',
-        message: 'AWS Cognito configuration is incomplete',
-      };
-    }
-    
     try {
       const payload = await this.jwtVerifier.verify(token);
       return {

@@ -1,6 +1,6 @@
 import express from "express";
 import { configDotenv } from "dotenv";
-import { CognitoService, CognitoConfig } from "./modules/auth";
+import { CognitoService, cognitoConfig } from "./modules/auth";
 
 configDotenv();
 const app = express();
@@ -8,12 +8,6 @@ const port: number = Number(process.env.PORT) || 8001;
 const apiVersion: number = Number(process.env.API_VERSION) || 1;
 
 app.use(express.json());
-
-const cognitoConfig: CognitoConfig = {
-  region: process.env.AWS_REGION || "us-east-1",
-  userPoolId: process.env.COGNITO_USER_POOL_ID || "",
-  clientId: process.env.COGNITO_CLIENT_ID || "",
-};
 
 const cognitoService = new CognitoService(cognitoConfig);
 

@@ -7,6 +7,11 @@ export interface CognitoConfig {
 export interface SignUpRequest {
   email: string;
   password: string;
+  fullName: string;
+  age: number;
+  educationLevel: string;
+  currentRole: string;
+  portfolio?: string;
   firstName?: string;
   lastName?: string;
 }
