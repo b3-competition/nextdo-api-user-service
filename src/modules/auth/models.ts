@@ -2,6 +2,7 @@ export interface CognitoConfig {
   region: string;
   userPoolId: string;
   clientId: string;
+  clientSecret?: string;
 }
 
 export interface SignUpRequest {

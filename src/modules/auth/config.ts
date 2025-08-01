@@ -7,6 +7,7 @@ export const cognitoConfig: CognitoConfig = {
   region: process.env.AWS_REGION || "us-east-1",
   userPoolId: process.env.COGNITO_USER_POOL_ID || "",
   clientId: process.env.COGNITO_CLIENT_ID || "",
+  clientSecret: process.env.COGNITO_CLIENT_SECRET || undefined,
 };
 
 export class CognitoClientFactory {

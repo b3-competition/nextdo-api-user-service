@@ -1,10 +1,19 @@
 import { Router } from "express";
 import { CognitoService, cognitoConfig } from "../modules/auth";
+import { 
+  validateRequest, 
+  signUpSchema, 
+  loginSchema, 
+  confirmSignUpSchema, 
+  forgotPasswordSchema, 
+  confirmForgotPasswordSchema,
+  refreshTokenSchema 
+} from "../middleware/validation";
 
 const router: Router = Router();
 const cognitoService = new CognitoService(cognitoConfig);
 
-router.post("/signup", async (req, res, next) => {
+router.post("/signup", validateRequest(signUpSchema), async (req, res, next) => {
   try {
     const { email, password, fullName, age, educationLevel, currentRole, portfolio } = req.body;
     
@@ -35,7 +44,7 @@ router.post("/signup", async (req, res, next) => {
   }
 });
 
-router.post("/confirm-signup", async (req, res, next) => {
+router.post("/confirm-signup", validateRequest(confirmSignUpSchema), async (req, res, next) => {
   try {
     const { email, confirmationCode } = req.body;
     
@@ -61,7 +70,7 @@ router.post("/confirm-signup", async (req, res, next) => {
   }
 });
 
-router.post("/login", async (req, res, next) => {
+router.post("/login", validateRequest(loginSchema), async (req, res, next) => {
   try {
     const { email, password } = req.body;
     
@@ -87,7 +96,7 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-router.post("/forgot-password", async (req, res, next) => {
+router.post("/forgot-password", validateRequest(forgotPasswordSchema), async (req, res, next) => {
   try {
     const { email } = req.body;
     
@@ -110,7 +119,7 @@ router.post("/forgot-password", async (req, res, next) => {
   }
 });
 
-router.post("/confirm-forgot-password", async (req, res, next) => {
+router.post("/confirm-forgot-password", validateRequest(confirmForgotPasswordSchema), async (req, res, next) => {
   try {
     const { email, confirmationCode, newPassword } = req.body;
     
@@ -137,7 +146,7 @@ router.post("/confirm-forgot-password", async (req, res, next) => {
   }
 });
 
-router.post("/resend-confirmation", async (req, res, next) => {
+router.post("/resend-confirmation", validateRequest(forgotPasswordSchema), async (req, res, next) => {
   try {
     const { email } = req.body;
     
@@ -183,7 +192,7 @@ router.get("/verify-token", async (req, res, next) => {
   }
 });
 
-router.post("/refresh-token", async (req, res, next) => {
+router.post("/refresh-token", validateRequest(refreshTokenSchema), async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
     

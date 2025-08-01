@@ -9,6 +9,7 @@ import {
   AuthFlowType,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
+import { createHmac } from "crypto";
 import {
   CognitoConfig,
   SignUpRequest,
@@ -20,37 +21,41 @@ import {
   AuthResponse,
 } from "./models";
 import { ConfigurationError } from "./errors";
-import { PasswordService } from "./password.service";
 import { CognitoClientFactory } from "./config";
 
 export class CognitoService {
   private client: CognitoIdentityProviderClient;
   private config: CognitoConfig;
   private jwtVerifier: ReturnType<typeof CognitoJwtVerifier.create>;
-  private passwordService: PasswordService;
 
   constructor(config: CognitoConfig) {
     this.config = config;
     this.client = CognitoClientFactory.createClient(config);
-    this.passwordService = new PasswordService();
     this.jwtVerifier = CognitoClientFactory.createJwtVerifier(config);
+  }
+
+  private generateSecretHash(username: string): string | undefined {
+    if (!this.config.clientSecret) {
+      return undefined;
+    }
+    
+    const message = username + this.config.clientId;
+    const hmac = createHmac('sha256', this.config.clientSecret);
+    hmac.update(message);
+    return hmac.digest('base64');
   }
 
   async signUp(request: SignUpRequest): Promise<AuthResponse> {
     try {
-      const hashedPassword = await this.passwordService.hashPassword(request.password);
-      
+      const secretHash = this.generateSecretHash(request.email);
       const command = new SignUpCommand({
         ClientId: this.config.clientId,
         Username: request.email,
-        Password: hashedPassword,
+        Password: request.password,
+        ...(secretHash && { SecretHash: secretHash }),
         UserAttributes: [
           { Name: "email", Value: request.email },
           { Name: "name", Value: request.fullName },
-          { Name: "custom:age", Value: request.age.toString() },
-          { Name: "custom:education_level", Value: request.educationLevel },
-          { Name: "custom:current_role", Value: request.currentRole },
-          ...(request.portfolio ? [{ Name: "custom:portfolio", Value: request.portfolio }] : []),
           ...(request.firstName ? [{ Name: "given_name", Value: request.firstName }] : []),
           ...(request.lastName ? [{ Name: "family_name", Value: request.lastName }] : []),
         ],
@@ -73,10 +78,12 @@ export class CognitoService {
 
   async confirmSignUp(request: ConfirmSignUpRequest): Promise<AuthResponse> {
     try {
+      const secretHash = this.generateSecretHash(request.email);
       const command = new ConfirmSignUpCommand({
         ClientId: this.config.clientId,
         Username: request.email,
         ConfirmationCode: request.confirmationCode,
+        ...(secretHash && { SecretHash: secretHash }),
       });
 
       await this.client.send(command);
@@ -95,15 +102,20 @@ export class CognitoService {
 
   async login(request: LoginRequest): Promise<AuthResponse> {
     try {
-      const hashedPassword = await this.passwordService.hashPassword(request.password);
+      const secretHash = this.generateSecretHash(request.email);
+      const authParameters: Record<string, string> = {
+        USERNAME: request.email,
+        PASSWORD: request.password,
+      };
+      
+      if (secretHash) {
+        authParameters.SECRET_HASH = secretHash;
+      }
       
       const command = new InitiateAuthCommand({
         ClientId: this.config.clientId,
         AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
-        AuthParameters: {
-          USERNAME: request.email,
-          PASSWORD: hashedPassword,
-        },
+        AuthParameters: authParameters,
       });
 
       const response = await this.client.send(command);
@@ -135,9 +147,11 @@ export class CognitoService {
 
   async forgotPassword(request: ForgotPasswordRequest): Promise<AuthResponse> {
     try {
+      const secretHash = this.generateSecretHash(request.email);
       const command = new ForgotPasswordCommand({
         ClientId: this.config.clientId,
         Username: request.email,
+        ...(secretHash && { SecretHash: secretHash }),
       });
 
       await this.client.send(command);
@@ -156,13 +170,13 @@ export class CognitoService {
 
   async confirmForgotPassword(request: ConfirmForgotPasswordRequest): Promise<AuthResponse> {
     try {
-      const hashedNewPassword = await this.passwordService.hashPassword(request.newPassword);
-      
+      const secretHash = this.generateSecretHash(request.email);
       const command = new ConfirmForgotPasswordCommand({
         ClientId: this.config.clientId,
         Username: request.email,
         ConfirmationCode: request.confirmationCode,
-        Password: hashedNewPassword,
+        Password: request.newPassword,
+        ...(secretHash && { SecretHash: secretHash }),
       });
 
       await this.client.send(command);
@@ -181,9 +195,11 @@ export class CognitoService {
 
   async resendConfirmationCode(email: string): Promise<AuthResponse> {
     try {
+      const secretHash = this.generateSecretHash(email);
       const command = new ResendConfirmationCodeCommand({
         ClientId: this.config.clientId,
         Username: email,
+        ...(secretHash && { SecretHash: secretHash }),
       });
 
       await this.client.send(command);
