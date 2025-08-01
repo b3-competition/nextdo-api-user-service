@@ -183,4 +183,27 @@ router.get("/verify-token", async (req, res, next) => {
   }
 });
 
+router.post("/refresh-token", async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+    
+    if (!refreshToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Refresh token is required"
+      });
+    }
+
+    const result = await cognitoService.refreshToken({ refreshToken });
+
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(401).json(result);
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

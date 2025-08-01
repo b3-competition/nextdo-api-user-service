@@ -16,6 +16,7 @@ import {
   ConfirmSignUpRequest,
   ForgotPasswordRequest,
   ConfirmForgotPasswordRequest,
+  RefreshTokenRequest,
   AuthResponse,
 } from "./models";
 import { ConfigurationError } from "./errors";
@@ -212,6 +213,43 @@ export class CognitoService {
         success: false,
         error: error instanceof Error ? error.name : 'TokenVerificationError',
         message: "Invalid or expired token",
+      };
+    }
+  }
+
+  async refreshToken(request: RefreshTokenRequest): Promise<AuthResponse> {
+    try {
+      const command = new InitiateAuthCommand({
+        ClientId: this.config.clientId,
+        AuthFlow: AuthFlowType.REFRESH_TOKEN_AUTH,
+        AuthParameters: {
+          REFRESH_TOKEN: request.refreshToken,
+        },
+      });
+
+      const response = await this.client.send(command);
+      
+      if (response.AuthenticationResult) {
+        return {
+          success: true,
+          accessToken: response.AuthenticationResult.AccessToken,
+          idToken: response.AuthenticationResult.IdToken,
+          refreshToken: response.AuthenticationResult.RefreshToken ?? request.refreshToken,
+          expiresIn: response.AuthenticationResult.ExpiresIn,
+          message: "Tokens refreshed successfully",
+        };
+      } else {
+        return {
+          success: false,
+          error: "RefreshFailed",
+          message: "Failed to refresh tokens",
+        };
+      }
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.name : 'UnknownError',
+        message: error instanceof Error ? error.message : 'Failed to refresh token',
       };
     }
   }

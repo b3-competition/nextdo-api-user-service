@@ -36,6 +36,10 @@ export interface ConfirmForgotPasswordRequest {
   newPassword: string;
 }
 
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
 export interface AuthResponse {
   success: boolean;
   error?: string;
