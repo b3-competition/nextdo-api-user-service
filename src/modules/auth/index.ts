@@ -5,6 +5,7 @@ export {
   ConfirmSignUpRequest,
   ForgotPasswordRequest,
   ConfirmForgotPasswordRequest,
+  RefreshTokenRequest,
   AuthResponse,
 } from "./models";
 export {
