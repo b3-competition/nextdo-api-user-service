@@ -1,0 +1,207 @@
+import { Router } from "express";
+import { CognitoService, cognitoConfig } from "../modules/auth";
+
+const router = Router();
+const cognitoService = new CognitoService(cognitoConfig);
+
+router.post("/signup", async (req, res) => {
+  try {
+    const { email, password, fullName, age, educationLevel, currentRole, portfolio } = req.body;
+    
+    if (!email || !password || !fullName || !age || !educationLevel || !currentRole) {
+      return res.status(400).json({
+        success: false,
+        message: "Email, password, full name, age, education level, and current role are required"
+      });
+    }
+
+    const result = await cognitoService.signUp({
+      email,
+      password,
+      fullName,
+      age,
+      educationLevel,
+      currentRole,
+      portfolio
+    });
+
+    if (result.success) {
+      res.status(201).json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+});
+
+router.post("/confirm-signup", async (req, res) => {
+  try {
+    const { email, confirmationCode } = req.body;
+    
+    if (!email || !confirmationCode) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and confirmation code are required"
+      });
+    }
+
+    const result = await cognitoService.confirmSignUp({
+      email,
+      confirmationCode
+    });
+
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required"
+      });
+    }
+
+    const result = await cognitoService.login({
+      email,
+      password
+    });
+
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(401).json(result);
+    }
+  } catch {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+});
+
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required"
+      });
+    }
+
+    const result = await cognitoService.forgotPassword({ email });
+
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+});
+
+router.post("/confirm-forgot-password", async (req, res) => {
+  try {
+    const { email, confirmationCode, newPassword } = req.body;
+    
+    if (!email || !confirmationCode || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Email, confirmation code, and new password are required"
+      });
+    }
+
+    const result = await cognitoService.confirmForgotPassword({
+      email,
+      confirmationCode,
+      newPassword
+    });
+
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+});
+
+router.post("/resend-confirmation", async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required"
+      });
+    }
+
+    const result = await cognitoService.resendConfirmationCode(email);
+
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+});
+
+router.get("/verify-token", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Authorization token is required"
+      });
+    }
+
+    const result = await cognitoService.verifyToken(token);
+
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(401).json(result);
+    }
+  } catch {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+});
+
+export default router;
