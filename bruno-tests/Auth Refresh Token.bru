@@ -1,0 +1,45 @@
+meta {
+  name: Auth Refresh Token
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/api/auth/refresh-token
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "refreshToken": "{{refreshToken}}"
+  }
+}
+
+vars:pre-request {
+  baseUrl: http://localhost:8001
+}
+
+vars:post-response {
+  accessToken: res.body.accessToken
+  refreshToken: res.body.refreshToken
+}
+
+assert {
+  res.status: eq 200
+  res.body.success: eq true
+  res.body.message: eq "Tokens refreshed successfully"
+  res.body.accessToken: isDefined
+  res.body.idToken: isDefined
+}
+
+tests {
+  test("Should refresh tokens successfully", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().success).to.be.true;
+    expect(res.getBody().message).to.equal("Tokens refreshed successfully");
+    expect(res.getBody().accessToken).to.be.a('string');
+    expect(res.getBody().idToken).to.be.a('string');
+    expect(res.getBody().expiresIn).to.be.a('number');
+  });
+}

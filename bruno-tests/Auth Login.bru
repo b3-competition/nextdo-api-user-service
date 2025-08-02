@@ -1,0 +1,47 @@
+meta {
+  name: Auth Login
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "test@example.com",
+    "password": "TestPassword123!"
+  }
+}
+
+vars:pre-request {
+  baseUrl: http://localhost:8001
+}
+
+vars:post-response {
+  accessToken: res.body.accessToken
+}
+
+assert {
+  res.status: eq 200
+  res.body.success: eq true
+  res.body.message: eq "Login successful"
+  res.body.accessToken: isDefined
+  res.body.refreshToken: isDefined
+  res.body.idToken: isDefined
+}
+
+tests {
+  test("Should login user successfully", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().success).to.be.true;
+    expect(res.getBody().message).to.equal("Login successful");
+    expect(res.getBody().accessToken).to.be.a('string');
+    expect(res.getBody().refreshToken).to.be.a('string');
+    expect(res.getBody().idToken).to.be.a('string');
+    expect(res.getBody().expiresIn).to.be.a('number');
+  });
+}
