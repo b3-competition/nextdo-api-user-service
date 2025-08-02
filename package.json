@@ -25,7 +25,8 @@
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",
-    "joi": "^17.13.3"
+    "joi": "^17.13.3",
+    "zod": "^4.0.14"
   },
   "devDependencies": {
     "@eslint/js": "^9.31.0",

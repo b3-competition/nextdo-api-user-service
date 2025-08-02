@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/api/auth/signup
+  url: {{baseUrl}}/api/v1/auth/signup
   body: json
   auth: none
 }
@@ -15,10 +15,18 @@ body:json {
     "email": "test@example.com",
     "password": "TestPassword123!",
     "fullName": "John Doe",
-    "age": 25,
-    "educationLevel": "Bachelor",
+    "age": "25",
+    "educationLevel": "Bachelor's Degree",
     "currentRole": "Developer",
-    "portfolio": "https://johndoe.dev"
+    "portfolio": "https://johndoe.dev",
+    "aiPreferences": {
+      "interests": ["AI", "Technology"],
+      "goals": ["Learn new skills", "Career growth"],
+      "communicationStyle": "Friendly"
+    },
+    "acceptedTerms": true,
+    "acceptedPrivacy": true,
+    "marketingConsent": false
   }
 }
 
@@ -29,7 +37,7 @@ vars:pre-request {
 assert {
   res.status: eq 201
   res.body.success: eq true
-  res.body.message: contains "User registered successfully"
+  res.body.message: contains "Signup successful"
   res.body.userSub: isDefined
 }
 
@@ -37,7 +45,7 @@ tests {
   test("Should create user successfully", function() {
     expect(res.getStatus()).to.equal(201);
     expect(res.getBody().success).to.be.true;
-    expect(res.getBody().message).to.contain("User registered successfully");
+    expect(res.getBody().message).to.contain("Signup successful");
     expect(res.getBody().userSub).to.be.a('string');
   });
 }

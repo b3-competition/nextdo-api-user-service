@@ -9,12 +9,20 @@ export interface SignUpRequest {
   email: string;
   password: string;
   fullName: string;
-  age: number;
+  age: string;
   educationLevel: string;
   currentRole: string;
   portfolio?: string;
   firstName?: string;
   lastName?: string;
+  aiPreferences?: {
+    interests: string[];
+    goals: string[];
+    communicationStyle: string;
+  };
+  acceptedTerms?: boolean;
+  acceptedPrivacy?: boolean;
+  marketingConsent?: boolean;
 }
 
 export interface LoginRequest {

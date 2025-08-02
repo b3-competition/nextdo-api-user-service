@@ -1,41 +1,55 @@
 import { Router } from "express";
 import { CognitoService, cognitoConfig } from "../modules/auth";
 import { 
-  validateRequest, 
-  signUpSchema, 
-  loginSchema, 
-  confirmSignUpSchema, 
-  forgotPasswordSchema, 
+  validateZodRequest,
+  signupSchema,
+  loginSchema,
+  confirmSignupSchema,
+  forgotPasswordSchema,
   confirmForgotPasswordSchema,
-  refreshTokenSchema 
-} from "../middleware/validation";
+  refreshTokenSchema,
+  validateSignupStep
+} from "../middleware/zodValidation";
 
 const router: Router = Router();
 const cognitoService = new CognitoService(cognitoConfig);
 
-router.post("/signup", validateRequest(signUpSchema), async (req, res, next) => {
+router.post("/signup", validateZodRequest(signupSchema), async (req, res, next) => {
   try {
-    const { email, password, fullName, age, educationLevel, currentRole, portfolio } = req.body;
-    
-    if (!email || !password || !fullName || !age || !educationLevel || !currentRole) {
-      return res.status(400).json({
-        success: false,
-        message: "Email, password, full name, age, education level, and current role are required"
-      });
-    }
+    const { 
+      email, 
+      password, 
+      fullName, 
+      age, 
+      educationLevel, 
+      currentRole, 
+      portfolio,
+      aiPreferences,
+      acceptedTerms,
+      acceptedPrivacy,
+      marketingConsent
+    } = req.body;
 
     const result = await cognitoService.signUp({
       email,
       password,
       fullName,
-      age,
+      age, 
       educationLevel,
       currentRole,
-      portfolio
+      portfolio: portfolio || undefined,
+      aiPreferences,
+      acceptedTerms,
+      acceptedPrivacy,
+      marketingConsent
     });
 
     if (result.success) {
-      res.status(201).json(result);
+      res.status(201).json({
+        success: true,
+        userSub: result.userSub,
+        message: "User registered successfully. Please check your email for confirmation code."
+      });
     } else {
       res.status(400).json(result);
     }
@@ -44,7 +58,7 @@ router.post("/signup", validateRequest(signUpSchema), async (req, res, next) => 
   }
 });
 
-router.post("/confirm-signup", validateRequest(confirmSignUpSchema), async (req, res, next) => {
+router.post("/confirm-signup", validateZodRequest(confirmSignupSchema), async (req, res, next) => {
   try {
     const { email, confirmationCode } = req.body;
     
@@ -70,7 +84,7 @@ router.post("/confirm-signup", validateRequest(confirmSignUpSchema), async (req,
   }
 });
 
-router.post("/login", validateRequest(loginSchema), async (req, res, next) => {
+router.post("/login", validateZodRequest(loginSchema), async (req, res, next) => {
   try {
     const { email, password } = req.body;
     
@@ -96,7 +110,7 @@ router.post("/login", validateRequest(loginSchema), async (req, res, next) => {
   }
 });
 
-router.post("/forgot-password", validateRequest(forgotPasswordSchema), async (req, res, next) => {
+router.post("/forgot-password", validateZodRequest(forgotPasswordSchema), async (req, res, next) => {
   try {
     const { email } = req.body;
     
@@ -119,7 +133,7 @@ router.post("/forgot-password", validateRequest(forgotPasswordSchema), async (re
   }
 });
 
-router.post("/confirm-forgot-password", validateRequest(confirmForgotPasswordSchema), async (req, res, next) => {
+router.post("/confirm-forgot-password", validateZodRequest(confirmForgotPasswordSchema), async (req, res, next) => {
   try {
     const { email, confirmationCode, newPassword } = req.body;
     
@@ -146,7 +160,7 @@ router.post("/confirm-forgot-password", validateRequest(confirmForgotPasswordSch
   }
 });
 
-router.post("/resend-confirmation", validateRequest(forgotPasswordSchema), async (req, res, next) => {
+router.post("/resend-confirmation", validateZodRequest(forgotPasswordSchema), async (req, res, next) => {
   try {
     const { email } = req.body;
     
@@ -192,7 +206,7 @@ router.get("/verify-token", async (req, res, next) => {
   }
 });
 
-router.post("/refresh-token", validateRequest(refreshTokenSchema), async (req, res, next) => {
+router.post("/refresh-token", validateZodRequest(refreshTokenSchema), async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
     
@@ -213,6 +227,39 @@ router.post("/refresh-token", validateRequest(refreshTokenSchema), async (req, r
   } catch (error) {
     next(error);
   }
+});
+
+// Step-by-step validation endpoints for crispy UX
+router.post("/validate-step/personal", validateSignupStep('personal'), (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Personal info is valid ✨",
+    step: "personal"
+  });
+});
+
+router.post("/validate-step/ai", validateSignupStep('ai'), (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "AI preferences are valid 🤖", 
+    step: "ai"
+  });
+});
+
+router.post("/validate-step/identity", validateSignupStep('identity'), (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Identity info is valid 🔐",
+    step: "identity"
+  });
+});
+
+router.post("/validate-step/terms", validateSignupStep('terms'), (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Terms acceptance is valid ✅",
+    step: "terms"
+  });
 });
 
 export default router;

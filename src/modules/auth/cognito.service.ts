@@ -20,7 +20,6 @@ import {
   RefreshTokenRequest,
   AuthResponse,
 } from "./models";
-import { ConfigurationError } from "./errors";
 import { CognitoClientFactory } from "./config";
 
 export class CognitoService {

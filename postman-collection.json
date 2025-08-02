@@ -1,0 +1,598 @@
+{
+	"info": {
+		"_postman_id": "nextdo-auth-api",
+		"name": "NextDo Auth API",
+		"description": "Complete authentication flow for NextDo API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8001/api/v1/auth",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1a. User Signup (Simple)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"thilinarathnakumara2006@gmail.com\",\n  \"password\": \"SecurePassword123!\",\n  \"fullName\": \"Thilina Rathnakumara\",\n  \"age\": \"25\",\n  \"educationLevel\": \"Bachelor's Degree\",\n  \"currentRole\": \"Software Developer\",\n  \"portfolio\": \"\",\n  \"aiPreferences\": {\n    \"interests\": [\"Programming\", \"Technology\"],\n    \"goals\": [\"Career Growth\"],\n    \"communicationStyle\": \"Professional\"\n  },\n  \"acceptedTerms\": true,\n  \"acceptedPrivacy\": true,\n  \"marketingConsent\": false\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/signup",
+					"host": ["{{baseUrl}}"],
+					"path": ["signup"]
+				},
+				"description": "Simple signup with just email, password, and full name - works with basic Cognito setup"
+			}
+		},
+		{
+			"name": "1b. User Signup (Complete)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"thilinarathnakumara2006@gmail.com\",\n  \"password\": \"SecurePassword123!\",\n  \"fullName\": \"Thilina Rathnakumara\",\n  \"age\": \"25\",\n  \"educationLevel\": \"Bachelor's Degree\",\n  \"currentRole\": \"Software Developer\",\n  \"portfolio\": \"https://thilina.dev\",\n  \"aiPreferences\": {\n    \"interests\": [\"Programming\", \"AI\", \"Web Development\"],\n    \"goals\": [\"Career Growth\", \"Learning New Technologies\", \"Building Cool Projects\"],\n    \"communicationStyle\": \"Direct and Technical\"\n  },\n  \"acceptedTerms\": true,\n  \"acceptedPrivacy\": true,\n  \"marketingConsent\": false\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/signup",
+					"host": ["{{baseUrl}}"],
+					"path": ["signup"]
+				},
+				"description": "Register a new user with complete profile information"
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"thilinarathnakumara2006@gmail.com\",\n  \"password\": \"SecurePassword123!\",\n  \"fullName\": \"Thilina Rathnakumara\",\n  \"age\": \"25\",\n  \"educationLevel\": \"Bachelor's Degree\",\n  \"currentRole\": \"Software Developer\",\n  \"portfolio\": \"https://thilina.dev\",\n  \"aiPreferences\": {\n    \"interests\": [\"Programming\", \"AI\"],\n    \"goals\": [\"Career Growth\"],\n    \"communicationStyle\": \"Direct\"\n  },\n  \"acceptedTerms\": true,\n  \"acceptedPrivacy\": true,\n  \"marketingConsent\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/signup",
+							"host": ["{{baseUrl}}"],
+							"path": ["signup"]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"success\": true,\n  \"userSub\": \"12345678-1234-1234-1234-123456789012\",\n  \"message\": \"User registered successfully. Please check your email for confirmation code.\"\n}"
+				}
+			]
+		},
+		{
+			"name": "2. Confirm Signup",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"thilinarathnakumara2006@gmail.com\",\n  \"confirmationCode\": \"123456\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/confirm-signup",
+					"host": ["{{baseUrl}}"],
+					"path": ["confirm-signup"]
+				},
+				"description": "Confirm user email with the 6-digit code sent during signup"
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"thilinarathnakumara2006@gmail.com\",\n  \"confirmationCode\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/confirm-signup",
+							"host": ["{{baseUrl}}"],
+							"path": ["confirm-signup"]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"success\": true,\n  \"message\": \"Email confirmed successfully. You can now log in.\"\n}"
+				}
+			]
+		},
+		{
+			"name": "3. User Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    const response = pm.response.json();",
+							"    if (response.accessToken) {",
+							"        pm.collectionVariables.set('accessToken', response.accessToken);",
+							"        console.log('Access token saved to collection variable');",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"thilinarathnakumara2006@gmail.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/login",
+					"host": ["{{baseUrl}}"],
+					"path": ["login"]
+				},
+				"description": "Authenticate user and get access tokens. This automatically saves the access token for use in protected routes."
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"thilinarathnakumara2006@gmail.com\",\n  \"password\": \"SecurePassword123!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["login"]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"success\": true,\n  \"accessToken\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"idToken\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"expiresIn\": 3600,\n  \"message\": \"Login successful\"\n}"
+				}
+			]
+		},
+		{
+			"name": "4. Verify Token",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{accessToken}}",
+						"description": "Access token from login response"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/verify-token",
+					"host": ["{{baseUrl}}"],
+					"path": ["verify-token"]
+				},
+				"description": "Validate access token and get user information"
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/verify-token",
+							"host": ["{{baseUrl}}"],
+							"path": ["verify-token"]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"success\": true,\n  \"payload\": {\n    \"sub\": \"12345678-1234-1234-1234-123456789012\",\n    \"email\": \"thilinarathnakumara2006@gmail.com\",\n    \"name\": \"Thilina Rathnakumara\",\n    \"custom:age\": \"25\",\n    \"custom:education_level\": \"Bachelor's Degree\",\n    \"custom:current_role\": \"Software Developer\",\n    \"custom:portfolio\": \"https://thilina.dev\",\n    \"exp\": 1640995200,\n    \"iat\": 1640991600\n  },\n  \"message\": \"Token is valid\"\n}"
+				}
+			]
+		},
+		{
+			"name": "5. Protected Route Example",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{accessToken}}",
+						"description": "Access token from login response"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8001/api/v1/protected",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8001",
+					"path": ["api", "v1", "protected"]
+				},
+				"description": "Example of accessing a protected endpoint"
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8001/api/v1/protected",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8001",
+							"path": ["api", "v1", "protected"]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"success\": true,\n  \"message\": \"This is a protected endpoint\",\n  \"user\": {\n    \"sub\": \"12345678-1234-1234-1234-123456789012\",\n    \"email\": \"thilinarathnakumara2006@gmail.com\",\n    \"name\": \"Thilina Rathnakumara\",\n    \"custom:age\": \"25\",\n    \"custom:education_level\": \"Bachelor's Degree\",\n    \"custom:current_role\": \"Software Developer\",\n    \"custom:portfolio\": \"https://thilina.dev\"\n  }\n}"
+				}
+			]
+		},
+		{
+			"name": "6. Forgot Password",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"thilinarathnakumara2006@gmail.com\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/forgot-password",
+					"host": ["{{baseUrl}}"],
+					"path": ["forgot-password"]
+				},
+				"description": "Initiate password reset - sends confirmation code to email"
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"thilinarathnakumara2006@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/forgot-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["forgot-password"]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"success\": true,\n  \"message\": \"Password reset code sent to your email.\"\n}"
+				}
+			]
+		},
+		{
+			"name": "7. Confirm Forgot Password",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"thilinarathnakumara2006@gmail.com\",\n  \"confirmationCode\": \"123456\",\n  \"newPassword\": \"NewSecurePassword123!\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/confirm-forgot-password",
+					"host": ["{{baseUrl}}"],
+					"path": ["confirm-forgot-password"]
+				},
+				"description": "Complete password reset with confirmation code and new password"
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"thilinarathnakumara2006@gmail.com\",\n  \"confirmationCode\": \"123456\",\n  \"newPassword\": \"NewSecurePassword123!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/confirm-forgot-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["confirm-forgot-password"]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"success\": true,\n  \"message\": \"Password reset successfully. You can now log in with your new password.\"\n}"
+				}
+			]
+		},
+		{
+			"name": "8. Resend Confirmation Code",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"thilinarathnakumara2006@gmail.com\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/resend-confirmation",
+					"host": ["{{baseUrl}}"],
+					"path": ["resend-confirmation"]
+				},
+				"description": "Resend email confirmation code if user didn't receive it"
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"thilinarathnakumara2006@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/resend-confirmation",
+							"host": ["{{baseUrl}}"],
+							"path": ["resend-confirmation"]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"success\": true,\n  \"message\": \"Confirmation code resent to your email.\"\n}"
+				}
+			]
+		},
+		{
+			"name": "9. Validate Personal Info",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"fullName\": \"Thilina Rathnakumara\",\n  \"age\": \"25\",\n  \"educationLevel\": \"Bachelor's Degree\",\n  \"currentRole\": \"Software Developer\",\n  \"portfolio\": \"https://thilina.dev\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/validate-step/personal",
+					"host": ["{{baseUrl}}"],
+					"path": ["validate-step", "personal"]
+				},
+				"description": "Validate personal information step"
+			}
+		},
+		{
+			"name": "10. Validate AI Preferences",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"aiPreferences\": {\n    \"interests\": [\"Programming\", \"AI\"],\n    \"goals\": [\"Career Growth\"],\n    \"communicationStyle\": \"Technical\"\n  }\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/validate-step/ai",
+					"host": ["{{baseUrl}}"],
+					"path": ["validate-step", "ai"]
+				},
+				"description": "Validate AI preferences step"
+			}
+		},
+		{
+			"name": "11. Validate Identity",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"thilinarathnakumara2006@gmail.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/validate-step/identity",
+					"host": ["{{baseUrl}}"],
+					"path": ["validate-step", "identity"]
+				},
+				"description": "Validate email and password step"
+			}
+		},
+		{
+			"name": "12. Validate Terms",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"acceptedTerms\": true,\n  \"acceptedPrivacy\": true,\n  \"marketingConsent\": false\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/validate-step/terms",
+					"host": ["{{baseUrl}}"],
+					"path": ["validate-step", "terms"]
+				},
+				"description": "Validate terms acceptance step"
+			}
+		},
+		{
+			"name": "13. Refresh Token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"refreshToken\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/refresh-token",
+					"host": ["{{baseUrl}}"],
+					"path": ["refresh-token"]
+				},
+				"description": "Get new access token using refresh token"
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/refresh-token",
+							"host": ["{{baseUrl}}"],
+							"path": ["refresh-token"]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [],
+					"cookie": [],
+					"body": "{\n  \"success\": true,\n  \"accessToken\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"idToken\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"expiresIn\": 3600,\n  \"message\": \"Tokens refreshed successfully\"\n}"
+				}
+			]
+		}
+	]
+}
